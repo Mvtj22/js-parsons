@@ -62,6 +62,7 @@
             }
         } 
 
+        //NOTE TO SELF ONLY TRUE/FALSE is broken
         $(document).ready(function(){
             var parson = new ParsonsWidget({
                 'sortableId': 'sortable',
@@ -72,7 +73,9 @@
                 'feedback_cb' : displayErrors,
                 //Use to show either the first error or all the wrong lines
                 'first_error_only': true,
-                'incorrectSound': true
+                'incorrectSound': true,
+                'droppableType': false,
+                'colored_keyword': false
             });
             parson.init(initial);
             parson.shuffleLines();

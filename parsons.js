@@ -1354,7 +1354,13 @@
     };
 
 
+    //Used when no colour text
     ParsonsWidget.prototype.codeLineToHTML = function(codeline) {
+      return '<li id="' + codeline.id + '" class="prettyprint lang-py">' + codeline.code + '<\/li>';
+    };
+
+    //Colour the text
+    ParsonsWidget.prototype.codeLineToHTMLUsingColourText = function(codeline) {
         console.log(codeline.code)
         if (this.options.colored_keyword){
           if(codeline.code.substring(0,4) === "FROM"){
@@ -1375,12 +1381,15 @@
         var lineHTML = [];
         for(var id in codelineIDs) {
             var line = this.getLineById(codelineIDs[id]);
-            lineHTML.push(this.codeLineToHTML(line));
+            lineHTML.push(this.codeLineToHTMLUsingColourText(line));
         }
         return '<ul id="ul-' + destinationID + '">'+lineHTML.join('')+'</ul>';
     };
 
+    
     ParsonsWidget.prototype.codeLineToHTMLPanel = function(codeline) {
+      
+      //Called when colored_keyword option is true
       if (this.options.colored_keyword){
         if(codeline.code.substring(0,4) === "FROM"){
           console.log(codeline.code.substring(0,4))
@@ -1392,10 +1401,23 @@
           console.log(codeline.code.substring(0,5))
           return ['<li id="' + codeline.id + '" style="color:DodgerBlue;">' + codeline.code + '<\/li>',3];
         }
+
+        return ['<li id="' + codeline.id + '" style="color:Black;"" >' + codeline.code + '<\/li>',4];
+      }else { //When not colored words go here
+        
       }
-      return ['<li id="' + codeline.id + '" style="color:Black;"" >' + codeline.code + '<\/li>',4];
+      
   };
 
+  //Doesn't work yet
+  ParsonsWidget.prototype.checkColoredKeyowordOption = function(codelineIDs, destinationID,typeNum=0) {
+    if (this.options.colored_keyword) {
+      this.getLineBasedOnType(codelineIDs, destinationID,typeNum)
+    } else {
+      this.codeLinesToHTML(codelineIDs, destinationID);
+    }
+  }
+  
   ParsonsWidget.prototype.getLineBasedOnType = function(codelineIDs, destinationID,typeNum) {
     var lineHTML = [];
       for(var id in codelineIDs) {
@@ -1413,7 +1435,8 @@
      var html;
      console.log(trashIDs)
 
-     if (this.options.trashId) {
+     //Run if dropppabletype is true
+     if (this.options.trashId && this.options.droppableType) {
        html = (this.options.trash_label?'<p>'+this.options.trash_label+'</p>':'') +
        ('<button class="accordion">' + 'Select' + '</button>') +
        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId,2) + '</p>' + '</div>') +
@@ -1423,20 +1446,23 @@
        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"3",3) + '</p>' + '</div>') +
        ('<button class="accordion">' + 'Other' + '</button>') +
        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"4",4) + '</p>' + '</div>')
-       //this.codeLinesToHTML(trashIDs, this.options.trashId);
        $("#" + this.options.trashId).html(html);
        html = (this.options.solution_label?'<p>'+this.options.solution_label+'</p>':'') +
          this.codeLinesToHTML(solutionIDs, this.options.sortableId);
-       console.log(html);
        $("#" + this.options.sortableId).html(html);
+     } else if (this.options.trashId){      //If droppabletype is false
+        html = (this.options.trash_label?'<p>'+this.options.trash_label+'</p>':'') +
+          this.codeLinesToHTML(trashIDs, this.options.trashId);
+        $("#" + this.options.trashId).html(html);
+        html = (this.options.solution_label?'<p>'+this.options.solution_label+'</p>':'') +
+          this.codeLinesToHTML(solutionIDs, this.options.sortableId);
+        $("#" + this.options.sortableId).html(html);
      } else {
        html = this.codeLinesToHTML(solutionIDs, this.options.sortableId);
-       console.log(html);
        $("#" + this.options.sortableId).html(html);
      }
 
     if (window.prettyPrint && (typeof(this.options.prettyPrint) === "undefined" || this.options.prettyPrint)) {
-    //Comment out the prettyPrint 
         prettyPrint();
     }
 
