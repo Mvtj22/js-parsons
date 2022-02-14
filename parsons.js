@@ -1406,7 +1406,22 @@
       }else { //When not colored words go here
         
       }
+
       
+      if(this.options.colored_background){
+        if(codeline.code.substring(0,4) === "FROM" || codeline.code.substring(0,5) === "(FROM"){
+          console.log(codeline.code.substring(0,4))
+          return ['<li id="' + codeline.id + '" style="background-color:MediumSeaGreen;">' + codeline.code + '<\/li>', 1];
+        } else if(codeline.code.substring(0,6) === "SELECT" || codeline.code.substring(0,7) === "(SELECT"){
+          console.log(codeline.code.substring(0,6))
+          return ['<li id="' + codeline.id + '" style="background-color:Tomato;">' + codeline.code + '<\/li>',2];
+        } else if(codeline.code.substring(0,5) === "WHERE"){
+          console.log(codeline.code.substring(0,5))
+          return ['<li id="' + codeline.id + '" style="background-color:DodgerBlue;">' + codeline.code + '<\/li>',3];
+        }
+
+        return ['<li id="' + codeline.id + '" style="background-color:Grey;"" >' + codeline.code + '<\/li>',4];
+      }
   };
 
   //Doesn't work yet
