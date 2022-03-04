@@ -5,7 +5,7 @@
         <link href="../parsons.css" rel="stylesheet" />
         <link href="../lib/prettify.css" rel="stylesheet" />
         <script src="../lib/prettify.js"></script>
-    <script async src='/cdn-cgi/bm/cv/669835187/api.js'></script></head>
+    </head>
     <body>
         <h2>B6 Database Parsons Problem</h2>
         <p>Construct a query by drag and dropping and reordering lines from the
@@ -25,12 +25,14 @@
             <a href="#" id="feedbackLink">Check Solution</a>
             <a href="#" id="nextQuestion" style="float: right;">Next Question</a>
         </p>
+        <xmp id="mut"></xmp>
         <script src="../lib/jquery.min.js"></script>
         <script src="../lib/jquery-ui.min.js"></script>
         <script src="../lib/jquery.ui.touch-punch.min.js"></script>
         <script src="../lib/underscore-min.js"></script>
         <script src="../lib/lis.js"></script>
         <script src="../parsons.js"></script>
+        <script src ="../mutants.js"></script>
         <script>
         var initial = 'SELECT a.fname, a.sname\n' +
                       'FROM actor a\n' +
@@ -44,26 +46,172 @@
                       '     WHERE ac.rolno = r.rolno\n' +
                       '     AND (r.alias = "Himself" OR r.alias = "Herself"))\n' +
                       '  )\n' +
-                      'ORDER BY a.sname ASC, a.fname ASC;\n' +
+                      'ORDER BY a.sname ASC, a.fname ASC;\n'
+                      /*Remove Old Example Distractors
                       'SELECT fname sname #distractor\n' +
                       'FROM role a #distractor\n' +
                       '  (SELECT r.fname, r.sname #distractor\n' +
                       '  FROM #distractor\n' +
-                      '  SELECT fname sname #distractor\n' +
-                      '     SELECT fname sname #distractor\n' +
-                      '     SELECT fname sname #distractor\n' +
-                      '     SELECT fname sname #distractor\n' +
-                      '     SELECT fname sname #distractor\n' +
-                      'SELECT fname sname #distractor\n'
-
+                      '  SELECT fname sname #distractor\n'*/
+        
         function displayErrors(fb) {
             if(fb.errors.length > 0) {
                 alert(fb.errors[0]);
             }
         } 
 
-        //NOTE TO SELF ONLY TRUE/FALSE is broken
-        $(document).ready(function(){
+    //NOTE TO SELF ONLY TRUE/FALSE is broken
+    $(document).ready(function(){  
+            
+        console.log("here");
+
+        //Regex Fixes for wildcard and brackets
+        var re = new RegExp(/\( SELECT \*/);
+        var reOriginal = "( SELECT *";
+
+        var re2 = new RegExp(/\( SELECT \*/);
+        var reOriginal2 = "( SELECT *";
+
+        //This is due to and not working so added bracket at the end
+        var re3 = new RegExp(/WHERE ac.rolno = r.rolno \)/);
+        var reOriginal3 = "WHERE ac.rolno = r.rolno )";
+
+        var re4 = new RegExp(/  \)/);
+        var reOriginal4 = "  )";
+
+        var forComparison = ['SELECT a.fname , a.sname','FROM actor a','WHERE EXISTS' ,'FROM acts ac', 'WHERE  a.actno = ac.actno', 'AND EXISTS','FROM role r', 'ORDER BY  a.sname ASC ,  a.fname ASC'];
+
+        let url = 'http://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
+        let xhr = new XMLHttpRequest();
+
+        //Connect to rest API
+        xhr.open("POST", url);
+        let parser = new DOMParser();
+
+        //Data to send to API
+        //Note AND (r.alias = "Himself" OR r.alias = "Herself")) doesn't work
+        var body = "<b>" + "<sql> SELECT a.fname, a.sname" +
+            ' FROM actor a\n' +
+            ' WHERE EXISTS\n' +
+            '  (SELECT *\n' +
+            '  FROM acts ac\n' +
+            '  WHERE a.actno = ac.actno\n' +
+            '  AND EXISTS\n' +
+            '     (SELECT *\n' +
+            '     FROM role r\n' +
+            '     WHERE ac.rolno = r.rolno)\n' +
+            '  )\n' +
+            'ORDER BY a.sname ASC, a.fname ASC;\n' + "</sql>" + 
+            "<schema>" + 
+            "<table name='actor'>"+
+            '<column name="actno" type="int"/>'+    
+            '<column name="fname" type="varchar"/>'+
+            '<column name="sname" type="varchar"/>'+
+            '<column name="dob" type="date"/>'+
+            '<column name="dod" type="date"/>'+
+            '<column name="picture" type="blob"/>'+
+            "</table>" +
+            "<table name='acts'>"+
+            '<column name="actno" type="int"/>'+
+            '<column name="movno" type="int"/>'+
+            '<column name="rolno" type="int"/>'+
+            '<column name="description" type="text"/>'+
+            "</table>" +
+            "<table name='role'>"+
+            '<column name="rolno" type="int"/>'+
+            '<column name="fname" type="varchar"/>'+
+            '<column name="sname" type="varchar"/>'+
+            '<column name="alias" type="varchar"/>'+
+            '<column name="description" type="text"/>'+
+            "</table>" +
+            "</schema>" + 
+            "<options>hideids=true,getparsedsql=true</options>"+
+            "</b>";
+
+        //Convert String to XML
+        let xmlDoc = parser.parseFromString(body, "application/xml");
+
+        //Send to API
+        xhr.send(body);
+
+
+        //On response of API
+        xhr.onload = function() {
+            
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(xhr.responseText, "application/xml");
+            let ele = document.getElementById('mut');
+            txt = "";
+
+            //Get SQL code from response        
+            x = xmlDoc.getElementsByTagName("sql");
+            for (i=1; i < x.length; i++){
+                txt+= x[i].childNodes[0].nodeValue + "\n";
+            }
+
+            //Add Mutant SQL code to webpage
+            ele.innerHTML += "Mutants Full Query from API:"+ "\n";
+            ele.innerHTML += txt;
+
+            //Loop through mutants and add to array
+            var mutantsArray = [];
+            for (i=0; i < x.length; i++){
+                mutantsArray[i] = x[i].childNodes[0].nodeValue;
+            }
+
+            //I loop through and remove lines that are unchanged, so that I can get the changed part of the mutant
+            //Loop through mutants array
+            for (i=1; i < x.length; i++){
+                console.log(mutantsArray[i])
+
+
+                //Loop through SQL lines
+                for (j=0; j < forComparison.length; j++){
+                    
+                    //Look for match in mutant
+                    compareResult = mutantsArray[i].search(forComparison[j]);
+
+                    //Check if line is found
+                    if (compareResult!=-1){
+                        //Take off match from mutant
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult) + mutantsArray[i].slice(compareResult + forComparison[j].length) 
+                    }
+                }
+
+                //Loop through regex could refactor
+                for (k=0; k < 1; k++){
+                    compareResult = mutantsArray[i].search(re);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal.length)
+                    }
+
+                    compareResult = mutantsArray[i].search(re2);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal2.length)
+                    }
+
+                    compareResult = mutantsArray[i].search(re3);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal3.length) 
+                    }
+
+                    compareResult = mutantsArray[i].search(re4);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal4.length)
+                    }
+                }
+            }
+
+            ele.innerHTML += "New Mutants" + "\n";
+            for (i=1; i < mutantsArray.length; i++){
+                ele.innerHTML += mutantsArray[i] + "\n";
+                initial += mutantsArray[i] + "\n";
+            }
+
             var parson = new ParsonsWidget({
                 'sortableId': 'sortable',
                 'trashId': 'sortableTrash',
@@ -112,7 +260,9 @@
                 }
             });
             }
+        }
         });
+
         </script>
-    <script type="text/javascript">(function(){window['__CF$cv$params']={r:'6dd38404d8284004',m:'gGTbG4Mj3NZ6Ahq8dY7H202EkaI5WovcL_6lo9VcDVQ-1644812549-0-Af4bItOehQ1EyCYXuf/1k8vVow07lD1bJ7+nmf6Lq7ypnwUJFqxyfVw9fNsy4OAKndUrieZBF3fmUbWkYIQKzqyRkvJm+UUJWtbfHk5vQXKOkUzmwWSvGrBwBefREx7/pBoTf5UX0yrOHQ7fULunpnJdpr4OYFB6fMcyGwLvRLXhgz4xqTwc0IwNwg4IAXDtOg==',s:[0x2c76e70693,0x3b89c9721e],}})();</script></body>
+        </body>
 </html>
