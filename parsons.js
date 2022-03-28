@@ -1410,13 +1410,13 @@
       
       if(this.options.colored_background){
         if(codeline.code.substring(0,4) === "FROM" || codeline.code.substring(0,5) === "(FROM"){
-          console.log(codeline.code.substring(0,4))
+          //console.log(codeline.code.substring(0,4))
           return ['<li id="' + codeline.id + '" style="background-color:MediumSeaGreen;">' + codeline.code + '<\/li>', 1];
         } else if(codeline.code.substring(0,6) === "SELECT" || codeline.code.substring(0,7) === "(SELECT" || codeline.code.substring(0,8) === "( SELECT"){
-          console.log(codeline.code.substring(0,6))
+          //console.log(codeline.code.substring(0,6))
           return ['<li id="' + codeline.id + '" style="background-color:Tomato;">' + codeline.code + '<\/li>',2];
         } else if(codeline.code.substring(0,5) === "WHERE"){
-          console.log(codeline.code.substring(0,5))
+          //console.log(codeline.code.substring(0,5))
           return ['<li id="' + codeline.id + '" style="background-color:DodgerBlue;">' + codeline.code + '<\/li>',3];
         }
 
@@ -1448,7 +1448,7 @@
    /** modifies the DOM by inserting exercise elements into it */
    ParsonsWidget.prototype.createHTMLFromLists = function(solutionIDs, trashIDs) {
      var html;
-     console.log(trashIDs)
+     //console.log(trashIDs)
 
      //Run if dropppabletype is true
      if (this.options.trashId && this.options.droppableType) {

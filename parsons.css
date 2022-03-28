@@ -5,6 +5,7 @@
     padding-left: 0px;
     margin-left: 2%;
     float: left;
+    margin-top: 50px;
 }
 #sortableTrash { width: 38%; }
 #sortable { width: 56%; }
@@ -44,6 +45,10 @@ ul.output {
 }
 .sortable-code li:hover {
     overflow: visible;
+}
+
+.sortable-code p {
+    font-size: x-large;
 }
 
 ul.incorrect {
@@ -124,6 +129,8 @@ li.correctPosition, .testcase.pass {
     border: none;
     outline: none;
     transition: 0.4s;
+    font-size: large;
+    font-weight: bold;
   }
   
   /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
@@ -138,3 +145,48 @@ li.correctPosition, .testcase.pass {
     display: none;
     overflow: hidden;
   }
+
+  .accordion:after {
+    content: '\02795'; /* Unicode character for "plus" sign (+) */
+    font-size: 13px;
+    color: #777;
+    float: right;
+    margin-left: 5px;
+  }
+  
+  .active:after {
+    content: "\2796"; /* Unicode character for "minus" sign (-) */
+  }
+  
+  table {
+    table-layout: fixed;
+    width: 600px;
+    text-align: center;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0em;
+}
+td {
+    border: 1px solid #676767;
+    padding: 5px;
+    margin: 5px;
+    height: 35px;
+    width: 1em;
+}
+
+th {
+    border:  1px solid black;;
+    padding: 5px;
+    margin: 5px;
+    height: 35px;
+    width: 3em;
+    background-color: #d0d0d0;
+}
+
+h4 {
+    padding: 5px;
+    margin-bottom: 0px;
+    margin-top: 50px;
+    text-align: auto;
+    font-size: x-large;
+}

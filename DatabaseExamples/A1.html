@@ -7,62 +7,299 @@
         <script src="../lib/prettify.js"></script>
     </head>
     <body>
-        <h2>A1 Database Parsons Problem</h2>
-        <p>Construct a query by drag and dropping and reordering lines from the left to the right.</p>
-        <p>List all information regarding stores in Helsinki and Tampere.</p>
+        <h1>A1 Database Parsons Problem</h1>
+        <p style="font-size: x-large">Construct a query by drag and dropping and reordering lines from the left to the right.</p>
+        <p style="font-size: x-large">List all information regarding stores in Helsinki and Tampere.</p>
         <div>
-            <div>
-              <h3>Table 1</h3>
-              <img src="Pictures/A1.PNG" alt="Table 1">
-            </div>
+            <div id="questionTables"></div>
         </div>
         <div id="sortableTrash" class="sortable-code"></div>
         <div id="sortable" class="sortable-code"></div>
         <div style="clear:both;"></div>
         <p>
-            <a href="#" id="newInstanceLink">New instance</a>
+            <a href="#" id="shuffleLines">Restart Question</a>
             <a href="#" id="feedbackLink">Check Solution</a>
-            <a href="#" id="nextQuestion" style="float: right;">Next Question</a>
+            <a href="#" id="nextQuestion" style="float: right; padding-left: 1em;">Next Question</a>
+            <!-- <a href="#" id="previousQuestion" style="float: right;">Previous Question</a> -->
         </p>
+        <xmp id="mut"></xmp>
         <script src="../lib/jquery.min.js"></script>
         <script src="../lib/jquery-ui.min.js"></script>
         <script src="../lib/jquery.ui.touch-punch.min.js"></script>
         <script src="../lib/underscore-min.js"></script>
         <script src="../lib/lis.js"></script>
         <script src="../parsons.js"></script>
+        <script src ="../mutants.js"></script>
         <script>
         var initial = 'SELECT *\n' +
                       'FROM store\n' +
-                      "WHERE city IN ('Helsinki','Tampere');\n" +
-                      'SELECT city #distractor\n' +
-                      'SELECT street #distractor\n' +
-                      "WHERE store IN ('Helsinki','Tampere') #distractor\n"+
-                      "Extra other line"
-
+                      "WHERE city = 'Helsinki' OR city = 'Tampere';\n";
+        
         function displayErrors(fb) {
             if(fb.errors.length > 0) {
                 alert(fb.errors[0]);
             }
         } 
 
-        $(document).ready(function(){
+    //NOTE TO SELF ONLY TRUE/FALSE is broken
+    $(document).ready(function(){  
+
+        //Regex Fixes for wildcard and brackets
+        var re = new RegExp(/\( SELECT \*/);
+        var reOriginal = "( SELECT *";
+
+        var re2 = new RegExp(/\( SELECT \*/);
+        var reOriginal2 = "( SELECT *";
+
+        //This is due to and not working so added bracket at the end
+        var re3 = new RegExp(/WHERE ac.rolno = r.rolno \)/);
+        var reOriginal3 = "WHERE ac.rolno = r.rolno )";
+
+        var re4 = new RegExp(/  \)/);
+        var reOriginal4 = "  )";
+
+        var forComparison = [" SELECT *",
+            ' FROM store',
+            " WHERE city = 'Helsinki' OR city = 'Tampere';"];
+
+        let url = 'http://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
+        let xhr = new XMLHttpRequest();
+
+        //Connect to rest API
+        xhr.open("POST", url);
+        let parser = new DOMParser();
+
+        //Data to send to API
+        //Note AND (r.alias = "Himself" OR r.alias = "Herself")) doesn't work
+        var body = "<b>" + "<sql> SELECT *\n" +
+            ' FROM store\n' +
+            " WHERE city = 'Helsinki' OR city = 'Tampere';\n" +
+            "</sql>" + 
+            "<schema>" + 
+            "<table name='store'>"+
+            '<column name="stono" type="int"/>'+    
+            '<column name="street" type="varchar"/>'+
+            '<column name="zip" type="char"/>'+
+            '<column name="city" type="varchar"/>'+
+            '<column name="phone" type="varchar"/>'+
+            '<column name="empno" type="int"/>'+
+            "</table>" +
+            "</schema>" + 
+            "<options>hideids=true,getparsedsql=true</options>"+
+            "</b>";
+
+        //Adding tables based on schema
+
+        //Get the schema part of body
+        schemaStartArray = body.split("<schema>");
+        schemaArray = schemaStartArray[1].split("</schema>");
+        //Split by each table
+        splitTables = schemaArray[0].split('</table>');
+
+        let qtable = document.getElementById('questionTables');
+        
+        
+
+        //Go through each table, -1 to account for split empty line
+        for (let j=0; j<splitTables.length-1; j++){
+            console.log(splitTables[j]);
+            let tname = document.createElement('div');
+            qtable.appendChild(tname);
+
+            let table = document.createElement('table');
+            let thead = document.createElement('thead');
+            let tbody = document.createElement('tbody');
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            
+
+            let row_1 = document.createElement('tr');
+
+            //Split by <>
+            let lineResult = splitTables[j].split(">");
+
+            for (let k=0; k<lineResult.length; k++){
+                let replaceResult = lineResult[k].replace("<","");
+                let replaceResult2 = replaceResult.replace("/","");
+                let splitInsideLine = replaceResult2.split(" ");
+
+                for (let l=1; l<splitInsideLine.length; l++){
+                    console.log(splitInsideLine[l]);
+
+                    //Set the column Names
+                    if(splitInsideLine[l-1] == 'column'){
+                        console.log("Here" + splitInsideLine[l]);
+
+                        let heading_1 = document.createElement('th');
+                        heading_1.innerHTML = splitInsideLine[l].split('\"')[1];
+                        row_1.appendChild(heading_1);
+                        thead.appendChild(row_1);
+                    } if (splitInsideLine[l-1] == 'table') {
+                        let tableName = document.createElement('h4');
+                        tableName.innerHTML += splitInsideLine[l].split('\'')[1];
+                        tname.appendChild(tableName);
+                    }
+                }
+            }
+
+            //Hard Coded Row Values, Improvement is to make an array or variable to hold this, per table
+            let row_2 = document.createElement('tr');
+            let row_2_data_1 = document.createElement('td');
+            row_2_data_1.innerHTML = "1";
+            let row_2_data_2 = document.createElement('td');
+            row_2_data_2.innerHTML = "James";
+            let row_2_data_3 = document.createElement('td');
+            row_2_data_3.innerHTML = "Bond";
+            let row_2_data_4 = document.createElement('td');
+            row_2_data_4.innerHTML = "11/03/1998";
+            let row_2_data_5 = document.createElement('td');
+            row_2_data_5.innerHTML = "Null";
+
+            row_2.appendChild(row_2_data_1);
+            row_2.appendChild(row_2_data_2);
+            row_2.appendChild(row_2_data_3);
+            row_2.appendChild(row_2_data_4);
+            if (j==0 || j==2){
+                row_2.appendChild(row_2_data_5);
+            }
+            tbody.appendChild(row_2);
+
+            //Get rid of weird style issue
+            table.setAttribute('cellspacing', '0')
+            qtable.appendChild(table);
+        }
+
+        
+
+    
+        //Convert String to XML
+        let xmlDoc = parser.parseFromString(body, "application/xml");
+
+        //Send to API
+        xhr.send(body);
+
+
+        //On response of API
+        xhr.onload = function() {
+            
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(xhr.responseText, "application/xml");
+            
+
+            //For Comments/Debugging
+            let ele = document.getElementById('mut');
+            txt = "";
+
+            //Use the subtype to filter the mutants
+            //Most are fully aceptable or rejectable but NLW2 and LCRW are split
+            const goodSubtypes = ['SLCT','SUBQ','NLW3','IRDDW', 'IRCCW','ORDR'];
+
+            //Get SQL code from response        
+            x = xmlDoc.getElementsByTagName("sql");
+            //Get the subtype from the response
+            z = xmlDoc.getElementsByTagName("subtype");
+            //Loop through mutants and add to array
+            var mutantsArray = [];
+            var counterForArray = 0;
+
+            //Check if mutant is a fine category and then add sql part to the mutants array.
+            for (i=1; i < x.length; i++){
+                for (j=0; j < goodSubtypes.length; j++){
+                    if (z[i-1].childNodes[0].nodeValue == goodSubtypes[j]){
+                        mutantsArray[counterForArray] = x[i].childNodes[0].nodeValue;
+                        counterForArray++;
+                    }
+                }
+            }
+
+            for (i=1; i < mutantsArray.length; i++){
+                console.log(mutantsArray[i]);
+            }
+
+            //I loop through and remove lines that are unchanged, so that I can get the changed part of the mutant
+            //Loop through mutants array, start at one since first sql is full sql query
+            for (i=0; i < mutantsArray.length; i++){
+
+
+                //Loop through SQL lines
+                for (j=0; j < forComparison.length; j++){
+                    
+                    //Look for match in mutant
+                    compareResult = mutantsArray[i].search(forComparison[j]);
+
+                    //Check if line is found
+                    if (compareResult!=-1){
+                        //Take off match from mutant
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult) + mutantsArray[i].slice(compareResult + forComparison[j].length) 
+                    }
+                }
+
+                //Loop through regex could refactor
+                for (k=0; k < 1; k++){
+                    compareResult = mutantsArray[i].search(re);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal.length)
+                    }
+
+                    compareResult = mutantsArray[i].search(re2);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal2.length)
+                    }
+
+                    compareResult = mutantsArray[i].search(re3);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal3.length) 
+                    }
+
+                    compareResult = mutantsArray[i].search(re4);
+
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal4.length)
+                    }
+                }
+            }
+
+            
+            const distractors = 2;
+            distractorsCounter = 0;
+
+            //Add SQL Mutants to the parsons initial variable
+            //For this question hardCoded a ;
+            while (distractorsCounter<distractors){
+                randomNum = Math.floor(Math.random() * mutantsArray.length-1);
+
+                if(mutantsArray[randomNum]!=null){
+                    initial += mutantsArray[randomNum] + ";#distractor\n";
+                    mutantsArray[randomNum] = null;
+                    distractorsCounter++;
+                }                
+            }
+            
+
             var parson = new ParsonsWidget({
                 'sortableId': 'sortable',
                 'trashId': 'sortableTrash',
                 //Used to show amount of distractors shown at once
-                'max_wrong_lines': 10,
+                'max_wrong_lines': 12,
                 // Not adding 'displayErrors' will show a pop up with your error
-                //'feedback_cb' : displayErrors,
+                'feedback_cb' : displayErrors,
                 //Use to show either the first error or all the wrong lines
                 'first_error_only': true,
                 'incorrectSound': true,
-                'colored_keyword': true
+                'droppableType': true,
+                'colored_keyword': false,
+                'colored_background': true
             });
             parson.init(initial);
             parson.shuffleLines();
-            $("#newInstanceLink").click(function(event){
+            $("#shuffleLines").click(function(event){
                 event.preventDefault();
                 parson.shuffleLines();
+                //Add Accordian Functionality
                 var acc = document.getElementsByClassName("accordion");
                 var i;
                 console.log(acc.length)
@@ -88,7 +325,7 @@
                 parson.getFeedback();
             });
             $("#nextQuestion").click(function(event){
-                location.href='B6.html'
+                location.href='b6.html'
             });
 
             //Add Accordian Functionality
@@ -111,8 +348,9 @@
                 }
             });
             }
+        }
         });
 
         </script>
-    </body>
+        </body>
 </html>
