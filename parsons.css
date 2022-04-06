@@ -158,35 +158,44 @@ li.correctPosition, .testcase.pass {
     content: "\2796"; /* Unicode character for "minus" sign (-) */
   }
   
-  table {
-    table-layout: fixed;
-    width: 600px;
-    text-align: center;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0em;
-}
-td {
-    border: 1px solid #676767;
-    padding: 5px;
-    margin: 5px;
-    height: 35px;
-    width: 1em;
-}
+    table {
+        table-layout: fixed;
+        width: 600px;
+        text-align: center;
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 0em;
+    }
+ 
+    td {
+        border: 1px solid #676767;
+        padding: 5px;
+        margin: 5px;
+        height: 35px;
+        width: 1em;
+    }
 
-th {
-    border:  1px solid black;;
-    padding: 5px;
-    margin: 5px;
-    height: 35px;
-    width: 3em;
-    background-color: #d0d0d0;
-}
+    th {
+        border:  1px solid black;;
+        padding: 5px;
+        margin: 5px;
+        height: 35px;
+        width: 3em;
+        background-color: #d0d0d0;
+    }
 
-h4 {
-    padding: 5px;
-    margin-bottom: 0px;
-    margin-top: 50px;
-    text-align: auto;
-    font-size: x-large;
-}
+    h4 {
+        padding: 5px;
+        margin-bottom: 0px;
+        margin-top: 50px;
+        text-align: auto;
+        font-size: x-large;
+    }
+
+    .row {
+        display: flex;
+      }
+      
+      .column {
+        flex: 50%;
+      }

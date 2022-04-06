@@ -1,13 +1,13 @@
 <!doctype html>
 <html>
     <head>
-        <title>Database Parsons Problem</title>
+        <title>SQL Parsons Problem</title>
         <link href="../parsons.css" rel="stylesheet" />
         <link href="../lib/prettify.css" rel="stylesheet" />
         <script src="../lib/prettify.js"></script>
     </head>
     <body>
-        <h1>A1 Database Parsons Problem</h1>
+        <h1>SQL Parsons Problem</h1>
         <p style="font-size: x-large">Construct a query by drag and dropping and reordering lines from the left to the right.</p>
         <p style="font-size: x-large">List all information regarding stores in Helsinki and Tampere.</p>
         <div>
@@ -148,21 +148,23 @@
             let row_2_data_1 = document.createElement('td');
             row_2_data_1.innerHTML = "1";
             let row_2_data_2 = document.createElement('td');
-            row_2_data_2.innerHTML = "James";
+            row_2_data_2.innerHTML = "Abbey";
             let row_2_data_3 = document.createElement('td');
-            row_2_data_3.innerHTML = "Bond";
+            row_2_data_3.innerHTML = "31345";
             let row_2_data_4 = document.createElement('td');
-            row_2_data_4.innerHTML = "11/03/1998";
+            row_2_data_4.innerHTML = "London";
             let row_2_data_5 = document.createElement('td');
-            row_2_data_5.innerHTML = "Null";
+            row_2_data_5.innerHTML = "9053217821";
+            let row_2_data_6 = document.createElement('td');
+            row_2_data_6.innerHTML = "5";
 
             row_2.appendChild(row_2_data_1);
             row_2.appendChild(row_2_data_2);
             row_2.appendChild(row_2_data_3);
             row_2.appendChild(row_2_data_4);
-            if (j==0 || j==2){
-                row_2.appendChild(row_2_data_5);
-            }
+            row_2.appendChild(row_2_data_5);
+            row_2.appendChild(row_2_data_6);
+
             tbody.appendChild(row_2);
 
             //Get rid of weird style issue

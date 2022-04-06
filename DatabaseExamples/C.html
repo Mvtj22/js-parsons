@@ -7,13 +7,13 @@
         <script src="../lib/prettify.js"></script>
     </head>
     <body>
-        <h1>SQL Parsons Problem</h1>
+        <h1>SQL Parsons Problems</h1>
         <p style="font-size: x-large">Construct a query by drag and dropping and reordering lines from the
             left to the right.</p>
-        <p style="font-size: x-large"> List the names of actors who have acted a role as himself or herself. Sort the results according to surname, and then according to first name, both in ascending order.</p>
-        <div>
-            <div id="questionTables">
-            </div>
+        <p style="font-size: x-large"> List the employees that have registered more than 10 orders.</p>
+        <div class="row">
+            <div class="column" id="questionTables"></div>
+            <div class="column" id="questionTables2"></div>
         </div>
         <div id="sortableTrash" class="sortable-code"></div>
         <div id="sortable" class="sortable-code"></div>
@@ -33,19 +33,12 @@
         <script src="../parsons.js"></script>
         <script src ="../mutants.js"></script>
         <script>
-        var initial = 'SELECT a.fname, a.sname\n' +
-                      'FROM actor a\n' +
-                      'WHERE EXISTS\n' +
-                      '  (SELECT *\n' +
-                      '  FROM acts ac\n' +
-                      '  WHERE a.actno = ac.actno\n' +
-                      '  AND EXISTS\n' +
-                      '     (SELECT *\n' +
-                      '     FROM role r\n' +
-                      '     WHERE ac.rolno = r.rolno\n' +
-                      '     AND (r.alias = "Himself" OR r.alias = "Herself"))\n' +
-                      'ORDER BY a.sname ASC, a.fname ASC;\n'
-        
+        var initial = 'SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders\n' +
+                      'FROM (Orders\n' +
+                      'INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID)\n' +
+                      'GROUP BY LastName\n' +
+                      'HAVING COUNT(Orders.OrderID) > 10;\n';
+
         function displayErrors(fb) {
             if(fb.errors.length > 0) {
                 alert(fb.errors[0]);
@@ -56,20 +49,24 @@
     $(document).ready(function(){  
 
         //Regex Fixes for wildcard and brackets
-        var re = new RegExp(/\( SELECT \*/);
-        var reOriginal = "( SELECT *";
+        var re = new RegExp(/SELECT Employees.LastName , COUNT\( Orders.OrderID \) AS NumberOfOrders/);
+        var reOriginal = "SELECT Employees.LastName , COUNT( Orders.OrderID ) AS NumberOfOrders";
 
-        var re2 = new RegExp(/\( SELECT \*/);
-        var reOriginal2 = "( SELECT *";
+        var re2 = new RegExp(/FROM \( Orders/);
+        var reOriginal2 = "FROM ( Orders";
 
         //This is due to and not working so added bracket at the end
         var re3 = new RegExp(/WHERE ac.rolno = r.rolno \)/);
         var reOriginal3 = "WHERE ac.rolno = r.rolno )";
 
-        var re4 = new RegExp(/  \)/);
-        var reOriginal4 = "  )";
+        var re4 = new RegExp(/INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID \)/);
+        var reOriginal4 = "INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID )";
 
-        var forComparison = ['SELECT a.fname , a.sname','FROM actor a','WHERE EXISTS' ,'FROM acts ac', 'WHERE  a.actno = ac.actno', 'AND EXISTS','FROM role r', 'ORDER BY  a.sname ASC ,  a.fname ASC'];
+        //This one specifically is not done properlly but it works so :shrug:
+        var re5 = new RegExp(/HAVING COUNT\( Orders.OrderID \)/);
+        var reOriginal5 = 'HAVING COUNT( Orders.OrderID ) < 10';
+
+        var forComparison = ['GROUP BY LastName'];
 
         let url = 'http://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
         let xhr = new XMLHttpRequest();
@@ -80,38 +77,26 @@
 
         //Data to send to API
         //Note AND (r.alias = "Himself" OR r.alias = "Herself")) doesn't work
-        var body = "<b>" + "<sql> SELECT a.fname, a.sname" +
-            ' FROM actor a\n' +
-            ' WHERE EXISTS\n' +
-            '  (SELECT *\n' +
-            '  FROM acts ac\n' +
-            '  WHERE a.actno = ac.actno\n' +
-            '  AND EXISTS\n' +
-            '     (SELECT *\n' +
-            '     FROM role r\n' +
-            '     WHERE ac.rolno = r.rolno)\n' +
-            '  )\n' +
-            'ORDER BY a.sname ASC, a.fname ASC;\n' + "</sql>" + 
+        var body = "<b>" + "<sql> SELECT Employees.LastName, COUNT(Orders.OrderID) AS NumberOfOrders\n" +
+            'FROM (Orders\n' +
+            'INNER JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID)\n' +
+            'GROUP BY LastName\n' +
+            'HAVING COUNT(Orders.OrderID) > 10;\n' + "</sql>" + 
             "<schema>" + 
-            "<table name='actor'>"+
-            '<column name="actno" type="int"/>'+    
-            '<column name="fname" type="varchar"/>'+
-            '<column name="sname" type="varchar"/>'+
-            '<column name="dob" type="date"/>'+
-            '<column name="dod" type="date"/>'+
+            "<table name='Employees'>"+
+            '<column name="EmployeeID" type="int"/>'+    
+            '<column name="LastName" type="varchar"/>'+
+            '<column name="FirstName" type="varchar"/>'+
+            '<column name="BirthDate" type="date"/>'+
+            '<column name="Photo" type="varchar"/>'+
+            '<column name="Notes" type="varchar"/>'+
             "</table>" +
-            "<table name='acts'>"+
-            '<column name="actno" type="int"/>'+
-            '<column name="movno" type="int"/>'+
-            '<column name="rolno" type="int"/>'+
-            '<column name="description" type="text"/>'+
-            "</table>" +
-            "<table name='role'>"+
-            '<column name="rolno" type="int"/>'+
-            '<column name="fname" type="varchar"/>'+
-            '<column name="sname" type="varchar"/>'+
-            '<column name="alias" type="varchar"/>'+
-            '<column name="description" type="text"/>'+
+            "<table name='Orders'>"+
+            '<column name="OrderID" type="int"/>'+    
+            '<column name="CustomerID" type="int"/>'+
+            '<column name="EmployeeID" type="int"/>'+
+            '<column name="OrderDate" type="date"/>'+
+            '<column name="ShipperID" type="int"/>'+
             "</table>" +
             "</schema>" + 
             "<options>hideids=true,getparsedsql=true</options>"+
@@ -132,6 +117,10 @@
         //Go through each table, -1 to account for split empty line
         for (let j=0; j<splitTables.length-1; j++){
             console.log(splitTables[j]);
+            if (j==1){
+                qtable = document.getElementById('questionTables2');
+            }
+
             let tname = document.createElement('div');
             qtable.appendChild(tname);
 
@@ -172,28 +161,60 @@
                 }
             }
 
-            //Hard Coded Row Values, Improvement is to make an array or variable to hold this, per table
-            let row_2 = document.createElement('tr');
-            let row_2_data_1 = document.createElement('td');
-            row_2_data_1.innerHTML = "1";
-            let row_2_data_2 = document.createElement('td');
-            row_2_data_2.innerHTML = "James";
-            let row_2_data_3 = document.createElement('td');
-            row_2_data_3.innerHTML = "Bond";
-            let row_2_data_4 = document.createElement('td');
-            row_2_data_4.innerHTML = "11/03/1998";
-            let row_2_data_5 = document.createElement('td');
-            row_2_data_5.innerHTML = "Null";
 
-            row_2.appendChild(row_2_data_1);
-            row_2.appendChild(row_2_data_2);
-            row_2.appendChild(row_2_data_3);
-            row_2.appendChild(row_2_data_4);
-            if (j==0 || j==2){
-                row_2.appendChild(row_2_data_5);
+            //First Table
+            if (j==1){
+                rowArray = [["10248","90","5","1996-07-04","3"],["10249","81","6","1996-07-05","1"],["10250","34","4","1996-07-08","2"]];
+                
+                for(var x=0; x<rowArray.length; x++){
+                    let row_2 = document.createElement('tr');
+                    let row_2_data_1 = document.createElement('td');
+                    row_2_data_1.innerHTML = rowArray[x][0];
+                    let row_2_data_2 = document.createElement('td');
+                    row_2_data_2.innerHTML = rowArray[x][1];
+                    let row_2_data_3 = document.createElement('td');
+                    row_2_data_3.innerHTML = rowArray[x][2];
+                    let row_2_data_4 = document.createElement('td');
+                    row_2_data_4.innerHTML = rowArray[x][3];
+                    let row_2_data_5 = document.createElement('td');
+                    row_2_data_5.innerHTML = rowArray[x][4];
+
+                    row_2.appendChild(row_2_data_1);
+                    row_2.appendChild(row_2_data_2);
+                    row_2.appendChild(row_2_data_3);
+                    row_2.appendChild(row_2_data_4);
+                    row_2.appendChild(row_2_data_5);
+                    tbody.appendChild(row_2);
+                }
+            } else if (j==0){
+                rowArray = [["1","Davolio","Nancy","1968-12-08","EmpID1.pic","Education includes a BA...."],["2","Fuller","Andrew","1952-02-19","EmpID2.pic","Andrew received his BTS...."],
+                ["3","Leverling","Janet","1963-08-30","EmpID3.pic","Janet has a BS degree...."]];
+                
+                for(var x=0; x<rowArray.length; x++){
+                    let row_2 = document.createElement('tr');
+                    let row_2_data_1 = document.createElement('td');
+                    row_2_data_1.innerHTML = rowArray[x][0];
+                    let row_2_data_2 = document.createElement('td');
+                    row_2_data_2.innerHTML = rowArray[x][1];
+                    let row_2_data_3 = document.createElement('td');
+                    row_2_data_3.innerHTML = rowArray[x][2];
+                    let row_2_data_4 = document.createElement('td');
+                    row_2_data_4.innerHTML = rowArray[x][3];
+                    let row_2_data_5 = document.createElement('td');
+                    row_2_data_5.innerHTML = rowArray[x][4];
+                    let row_2_data_6 = document.createElement('td');
+                    row_2_data_6.innerHTML = rowArray[x][5];
+
+                    row_2.appendChild(row_2_data_1);
+                    row_2.appendChild(row_2_data_2);
+                    row_2.appendChild(row_2_data_3);
+                    row_2.appendChild(row_2_data_4);
+                    row_2.appendChild(row_2_data_5);
+                    row_2.appendChild(row_2_data_6);
+                    tbody.appendChild(row_2);
+                }
             }
-            tbody.appendChild(row_2);
-
+            
             //Get rid of weird style issue
             table.setAttribute('cellspacing', '0')
             qtable.appendChild(table);
@@ -221,7 +242,7 @@
 
             //Use the subtype to filter the mutants
             //Most are fully aceptable or rejectable but NLW2 and LCRW are split
-            const goodSubtypes = ['SLCT','SUBQ','NLW3','IRDDW', 'IRCCW','ORDR'];
+            const goodSubtypes = ['SLCT','IRDDS','JOIN','IRCTH','IRDDH'];
 
             //Get SQL code from response        
             x = xmlDoc.getElementsByTagName("sql");
@@ -284,18 +305,35 @@
                     if (compareResult!=-1){
                         mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal4.length)
                     }
+
+                    compareResult = mutantsArray[i].search(re5);
+                    console.log(re5);
+                    console.log(compareResult);
+                    if (compareResult!=-1){
+                        mutantsArray[i] = mutantsArray[i].slice(0,compareResult)+ mutantsArray[i].slice(compareResult + reOriginal5.length)
+                    }
                 }
             }
 
-            
-            //Commented out is for debugging
-            //ele.innerHTML += "New Mutants" + "\n";
-            const distractors = 3;
 
-            for (i=1; i < mutantsArray.length; i++){
-                //ele.innerHTML += mutantsArray[i] + "\n";
-                //Math.floor(Math.random() * distractors );
-                initial += mutantsArray[i] + "#distractor\n";
+            //This is where you change amount of distractors you want
+            const distractors = 3;
+            var randNumPast = [];
+
+            for (i=0; i < distractors; i++){
+                let randNum = Math.floor(Math.random() * mutantsArray.length );
+
+                //Loop through past random numbers to replace duplicates
+                for (g=0; g < randNumPast.length; g++){
+                    if (randNumPast[g] == randNum){
+                       randNum = Math.floor(Math.random() * mutantsArray.length );
+                       g=-1;
+                    }
+                }
+
+                //Add to array and also Parson Code
+                randNumPast.push(randNum);
+                initial += mutantsArray[randNum] + "#distractor\n";
             }
             
 
@@ -311,6 +349,7 @@
                 'incorrectSound': true,
                 'droppableType': true,
                 'colored_keyword': false,
+                'join_having': true,
                 'colored_background': true
             });
             parson.init(initial);
@@ -344,16 +383,15 @@
                 parson.getFeedback();
             });
             $("#nextQuestion").click(function(event){
-                location.href='c.html'
+                location.href='congrats.html'
             });
             $("#previousQuestion").click(function(event){
-                location.href='a1.html'
+                location.href='b6.html'
             });
 
             //Add Accordian Functionality
             var acc = document.getElementsByClassName("accordion");
             var i;
-            console.log(acc.length)
 
             for (i = 0; i < acc.length; i++) {
             acc[i].addEventListener("click", function() {

@@ -884,6 +884,7 @@
        'max_wrong_lines': 10,
        'lang': 'en',
        'toggleSeparator': '::',
+       'join_having': false,
        'colored_keyword': true
      };
      
@@ -1387,6 +1388,7 @@
     };
 
     
+    //In Need of refactoring, use arrays instead of ||
     ParsonsWidget.prototype.codeLineToHTMLPanel = function(codeline) {
       
       //Called when colored_keyword option is true
@@ -1400,6 +1402,14 @@
         } else if(codeline.code.substring(0,5) === "WHERE"){
           console.log(codeline.code.substring(0,5))
           return ['<li id="' + codeline.id + '" style="color:DodgerBlue;">' + codeline.code + '<\/li>',3];
+        }
+
+        if(this.options.join_having){
+          if(codeline.code.substring(0,5) === "INNER" || codeline.code.substring(0,4) === "LEFT" || codeline.code.substring(0,5) === "CROSS" || codeline.code.substring(0,10) === "FULL OUTER" || codeline.code.substring(0,5) === "RIGHT"){
+            return ['<li id="' + codeline.id + '" style="background-color:DodgerBlue;">' + codeline.code + '<\/li>',5];
+          } else if(codeline.code.substring(0,6) === "HAVING" ){
+            return ['<li id="' + codeline.id + '" style="background-color:DodgerBlue;">' + codeline.code + '<\/li>',6];
+          }
         }
 
         return ['<li id="' + codeline.id + '" style="color:Black;"" >' + codeline.code + '<\/li>',4];
@@ -1418,6 +1428,14 @@
         } else if(codeline.code.substring(0,5) === "WHERE"){
           //console.log(codeline.code.substring(0,5))
           return ['<li id="' + codeline.id + '" style="background-color:DodgerBlue;">' + codeline.code + '<\/li>',3];
+        }
+
+        if(this.options.join_having){
+          if(codeline.code.substring(0,5) === "INNER" || codeline.code.substring(0,4) === "LEFT" || codeline.code.substring(0,5) === "CROSS" || codeline.code.substring(0,10) === "FULL OUTER" || codeline.code.substring(0,5) === "RIGHT"){
+            return ['<li id="' + codeline.id + '" style="background-color: LightPurple;">' + codeline.code + '<\/li>',5];
+          } else if(codeline.code.substring(0,6) === "HAVING" ){
+            return ['<li id="' + codeline.id + '" style="background-color:Pink;">' + codeline.code + '<\/li>',6];
+          }
         }
 
         return ['<li id="' + codeline.id + '" style="background-color:Grey;"" >' + codeline.code + '<\/li>',4];
@@ -1458,8 +1476,15 @@
        ('<button class="accordion">' + 'From' + '</button>') +
        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"1",1) + '</p>' + '</div>') +
        ('<button class="accordion">' + 'Where' + '</button>') +
-       ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"3",3) + '</p>' + '</div>') +
-       ('<button class="accordion">' + 'Other' + '</button>') +
+       ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"3",3) + '</p>' + '</div>') 
+       //For Join/Having Categories
+       if (this.options.join_having){
+        html += ('<button class="accordion">' + 'Join' + '</button>') +
+        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"5",5) + '</p>' + '</div>') +
+        ('<button class="accordion">' + 'Having' + '</button>') +
+        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"6",6) + '</p>' + '</div>')
+       }
+       html += ('<button class="accordion">' + 'Other' + '</button>') +
        ('<div class="panel">' + '<p>' + this.getLineBasedOnType(trashIDs, this.options.trashId+"4",4) + '</p>' + '</div>')
        $("#" + this.options.trashId).html(html);
        html = (this.options.solution_label?'<p>'+this.options.solution_label+'</p>':'') +
@@ -1585,9 +1610,55 @@
             that.addLogEntry({type: "moveInput", target: ui.item[0].id}, true);
           }
         });
+      //sortable.sortable('option', 'connectWith', trash1,trash2);
+    }
+
+    if (this.options.trashId && this.options.join_having) {
+      var trash5 = $("#ul-" + this.options.trashId+"5").sortable(
+        {
+          connectWith: sortable,
+          start: function() { that.clearFeedback(); },
+          receive: function(event, ui) {
+            that.getLineById(ui.item[0].id).indent = 0;
+            that.updateHTMLIndent(ui.item[0].id);
+            that.addLogEntry({type: "removeOutput", target: ui.item[0].id}, true);
+          },
+          stop: function(event, ui) {
+            if ($(event.target)[0] != ui.item.parent()[0]) {
+              // line moved to output and logged there
+              return;
+            }
+            that.addLogEntry({type: "moveInput", target: ui.item[0].id}, true);
+          }
+        });
+      //sortable.sortable('option', 'connectWith', trash1,trash2);
+    }
+
+    if (this.options.trashId && this.options.join_having) {
+      var trash6 = $("#ul-" + this.options.trashId+"6").sortable(
+        {
+          connectWith: sortable,
+          start: function() { that.clearFeedback(); },
+          receive: function(event, ui) {
+            that.getLineById(ui.item[0].id).indent = 0;
+            that.updateHTMLIndent(ui.item[0].id);
+            that.addLogEntry({type: "removeOutput", target: ui.item[0].id}, true);
+          },
+          stop: function(event, ui) {
+            if ($(event.target)[0] != ui.item.parent()[0]) {
+              // line moved to output and logged there
+              return;
+            }
+            that.addLogEntry({type: "moveInput", target: ui.item[0].id}, true);
+          }
+        });
         
         //Connect to the sortable using the ID of the HTML element
-        sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4");
+        if (this.options.join_having){
+          sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4,#ul-sortableTrash5,#ul-sortableTrash6");
+        }else {
+          sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4");
+        }
     }
      // Log the original codelines in the exercise in order to be able to
      // match the input/output hashes to the code later on. We need only a
