@@ -8,12 +8,11 @@
     </head>
     <body>
         <h1>SQL Parsons Problem</h1>
-        <p style="font-size: x-large">Construct a query by drag and dropping and reordering lines from the
-            left to the right.</p>
-        <p style="font-size: x-large"> List the names of actors who have acted a role as himself or herself. Sort the results according to surname, and then according to first name, both in ascending order.</p>
-        <div>
-            <div id="questionTables">
-            </div>
+        <p style="font-size: x-large">Construct a solution by dragging and dropping code lines from the left area to the solution area on the right. Note that you are able to order and indent the code fragments.</p>
+        <p style="font-size: x-large">Consider a database with the following tables. Construct a query that will list the names of actors who have acted a role as himself or herself. Sort the results according to surname, and then according to first name, both in ascending order.</p>
+        <div class="row">
+            <div class="column" id="questionTables"></div>
+            <div class="column" id="questionTables2"></div>
         </div>
         <div id="sortableTrash" class="sortable-code"></div>
         <div id="sortable" class="sortable-code"></div>
@@ -127,11 +126,16 @@
 
         let qtable = document.getElementById('questionTables');
         
-        
-
         //Go through each table, -1 to account for split empty line
         for (let j=0; j<splitTables.length-1; j++){
             console.log(splitTables[j]);
+
+            if (j%2==1){
+                qtable = document.getElementById('questionTables2');
+            } else {
+                qtable = document.getElementById('questionTables');
+            }
+
             let tname = document.createElement('div');
             qtable.appendChild(tname);
 
@@ -172,27 +176,77 @@
                 }
             }
 
-            //Hard Coded Row Values, Improvement is to make an array or variable to hold this, per table
-            let row_2 = document.createElement('tr');
-            let row_2_data_1 = document.createElement('td');
-            row_2_data_1.innerHTML = "1";
-            let row_2_data_2 = document.createElement('td');
-            row_2_data_2.innerHTML = "James";
-            let row_2_data_3 = document.createElement('td');
-            row_2_data_3.innerHTML = "Bond";
-            let row_2_data_4 = document.createElement('td');
-            row_2_data_4.innerHTML = "11/03/1998";
-            let row_2_data_5 = document.createElement('td');
-            row_2_data_5.innerHTML = "Null";
+             //First Table
+             if (j==1){
+                rowArray = [["1","90","2","Actor in Action/Thriller"],["2","81","1","Actor in Action/Thriller"],["3","34","3","Background Actor"]];
+                
+                for(var x=0; x<rowArray.length; x++){
+                    let row_2 = document.createElement('tr');
+                    let row_2_data_1 = document.createElement('td');
+                    row_2_data_1.innerHTML = rowArray[x][0];
+                    let row_2_data_2 = document.createElement('td');
+                    row_2_data_2.innerHTML = rowArray[x][1];
+                    let row_2_data_3 = document.createElement('td');
+                    row_2_data_3.innerHTML = rowArray[x][2];
+                    let row_2_data_4 = document.createElement('td');
+                    row_2_data_4.innerHTML = rowArray[x][3];
 
-            row_2.appendChild(row_2_data_1);
-            row_2.appendChild(row_2_data_2);
-            row_2.appendChild(row_2_data_3);
-            row_2.appendChild(row_2_data_4);
-            if (j==0 || j==2){
-                row_2.appendChild(row_2_data_5);
+                    row_2.appendChild(row_2_data_1);
+                    row_2.appendChild(row_2_data_2);
+                    row_2.appendChild(row_2_data_3);
+                    row_2.appendChild(row_2_data_4);
+                    tbody.appendChild(row_2);
+                }
+            } else if (j==0){
+                rowArray = [["1","Hugo","Weaving","1960-04-04","N/A"],["2","Will","Smith","1968-09-25","N/A"],
+                ["3","Ron","Prather","1948-11-29","2022-03-26"]];
+                
+                for(var x=0; x<rowArray.length; x++){
+                    let row_2 = document.createElement('tr');
+                    let row_2_data_1 = document.createElement('td');
+                    row_2_data_1.innerHTML = rowArray[x][0];
+                    let row_2_data_2 = document.createElement('td');
+                    row_2_data_2.innerHTML = rowArray[x][1];
+                    let row_2_data_3 = document.createElement('td');
+                    row_2_data_3.innerHTML = rowArray[x][2];
+                    let row_2_data_4 = document.createElement('td');
+                    row_2_data_4.innerHTML = rowArray[x][3];
+                    let row_2_data_5 = document.createElement('td');
+                    row_2_data_5.innerHTML = rowArray[x][4];
+
+                    row_2.appendChild(row_2_data_1);
+                    row_2.appendChild(row_2_data_2);
+                    row_2.appendChild(row_2_data_3);
+                    row_2.appendChild(row_2_data_4);
+                    row_2.appendChild(row_2_data_5);
+                    tbody.appendChild(row_2);
+                }
+            } else if (j==2){
+                rowArray = [["1","Agent","Smith","Agent Smith","Role1.pic"],["2","Robert","Neville","Rob","Role2.pic","Andrew received his BTS...."],
+                ["3","Sheriff","Boyle","Sheriff","Role3.pic"]];
+                
+                for(var x=0; x<rowArray.length; x++){
+                    let row_2 = document.createElement('tr');
+                    let row_2_data_1 = document.createElement('td');
+                    row_2_data_1.innerHTML = rowArray[x][0];
+                    let row_2_data_2 = document.createElement('td');
+                    row_2_data_2.innerHTML = rowArray[x][1];
+                    let row_2_data_3 = document.createElement('td');
+                    row_2_data_3.innerHTML = rowArray[x][2];
+                    let row_2_data_4 = document.createElement('td');
+                    row_2_data_4.innerHTML = rowArray[x][3];
+                    let row_2_data_5 = document.createElement('td');
+                    row_2_data_5.innerHTML = rowArray[x][4];
+
+                    row_2.appendChild(row_2_data_1);
+                    row_2.appendChild(row_2_data_2);
+                    row_2.appendChild(row_2_data_3);
+                    row_2.appendChild(row_2_data_4);
+                    row_2.appendChild(row_2_data_5);
+                    tbody.appendChild(row_2);
+                }
             }
-            tbody.appendChild(row_2);
+
 
             //Get rid of weird style issue
             table.setAttribute('cellspacing', '0')
@@ -288,16 +342,25 @@
             }
 
             
-            //Commented out is for debugging
-            //ele.innerHTML += "New Mutants" + "\n";
+            //This is where you change amount of distractors you want
             const distractors = 3;
+            var randNumPast = [];
 
-            for (i=1; i < mutantsArray.length; i++){
-                //ele.innerHTML += mutantsArray[i] + "\n";
-                //Math.floor(Math.random() * distractors );
-                initial += mutantsArray[i] + "#distractor\n";
+            for (i=0; i < distractors; i++){
+                let randNum = Math.floor(Math.random() * mutantsArray.length );
+
+                //Loop through past random numbers to replace duplicates
+                for (g=0; g < randNumPast.length; g++){
+                    if (randNumPast[g] == randNum){
+                       randNum = Math.floor(Math.random() * mutantsArray.length );
+                       g=-1;
+                    }
+                }
+
+                //Add to array and also Parson Code
+                randNumPast.push(randNum);
+                initial += mutantsArray[randNum] + "#distractor\n";
             }
-            
 
             var parson = new ParsonsWidget({
                 'sortableId': 'sortable',

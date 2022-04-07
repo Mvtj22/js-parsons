@@ -1652,14 +1652,15 @@
             that.addLogEntry({type: "moveInput", target: ui.item[0].id}, true);
           }
         });
-        
-        //Connect to the sortable using the ID of the HTML element
-        if (this.options.join_having){
-          sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4,#ul-sortableTrash5,#ul-sortableTrash6");
-        }else {
-          sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4");
-        }
     }
+
+    //Connect to the sortable using the ID of the HTML element
+    if (this.options.join_having){
+      sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4,#ul-sortableTrash5,#ul-sortableTrash6");
+    }else {
+      sortable.sortable("option", "connectWith", "#ul-sortableTrash,#ul-sortableTrash1,#ul-sortableTrash2,#ul-sortableTrash3,#ul-sortableTrash4");
+    }
+    
      // Log the original codelines in the exercise in order to be able to
      // match the input/output hashes to the code later on. We need only a
      // few properties of the codeline objects
