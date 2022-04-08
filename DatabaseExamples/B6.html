@@ -70,7 +70,7 @@
 
         var forComparison = ['SELECT a.fname , a.sname','FROM actor a','WHERE EXISTS' ,'FROM acts ac', 'WHERE  a.actno = ac.actno', 'AND EXISTS','FROM role r', 'ORDER BY  a.sname ASC ,  a.fname ASC'];
 
-        let url = 'http://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
+        let url = 'https://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
         let xhr = new XMLHttpRequest();
 
         //Connect to rest API
@@ -407,10 +407,10 @@
                 parson.getFeedback();
             });
             $("#nextQuestion").click(function(event){
-                location.href='c.html'
+                location.href='https://www.seerlab.ca/db-parsons/DatabaseExamples/C.html'
             });
             $("#previousQuestion").click(function(event){
-                location.href='a1.html'
+                location.href='https://www.seerlab.ca/db-parsons/DatabaseExamples/A1.html'
             });
 
             //Add Accordian Functionality
