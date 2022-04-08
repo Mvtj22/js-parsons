@@ -1,0 +1,26 @@
+{
+  "name": "js-parsons",
+  "version": "1.0.0",
+  "description": "",
+  "main": "parsons.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mvtj22/js-parsons.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mvtj22/js-parsons/issues"
+  },
+  "homepage": "https://github.com/Mvtj22/js-parsons#readme",
+  "dependencies": {
+    "cors-anywhere": "^0.4.4"
+  }
+}

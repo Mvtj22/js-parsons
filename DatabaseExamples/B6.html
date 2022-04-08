@@ -70,7 +70,8 @@
 
         var forComparison = ['SELECT a.fname , a.sname','FROM actor a','WHERE EXISTS' ,'FROM acts ac', 'WHERE  a.actno = ac.actno', 'AND EXISTS','FROM role r', 'ORDER BY  a.sname ASC ,  a.fname ASC'];
 
-        let url = 'https://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
+        const proxy = "http://127.0.0.1:8080/"
+        let url = proxy+'https://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
         let xhr = new XMLHttpRequest();
 
         //Connect to rest API

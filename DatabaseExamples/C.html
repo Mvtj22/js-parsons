@@ -67,7 +67,8 @@
 
         var forComparison = ['GROUP BY LastName'];
 
-        let url = 'https://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
+        const proxy = "http://127.0.0.1:8080/"
+        let url = proxy+'https://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
         let xhr = new XMLHttpRequest();
 
         //Connect to rest API
