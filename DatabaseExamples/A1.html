@@ -55,12 +55,12 @@
         var re3 = new RegExp(/WHERE ac.rolno = r.rolno \)/);
         var reOriginal3 = "WHERE ac.rolno = r.rolno )";
 
-        var re4 = new RegExp(/  \)/);
-        var reOriginal4 = "  )";
+        var re4 = new RegExp(/SELECT \*/);
+        var reOriginal4 = "SELECT *";
 
         var forComparison = [" SELECT *",
             ' FROM store',
-            " WHERE city = 'Helsinki' OR city = 'Tampere';"];
+            " WHERE city = 'Helsinki' OR city = 'Tampere'"];
 
         const proxy = "http://127.0.0.1:8080/"
         let url = proxy+'https://in2test.lsi.uniovi.es/sqlmutation/api/v2/mutants.xml';
@@ -230,6 +230,9 @@
                     
                     //Look for match in mutant
                     compareResult = mutantsArray[i].search(forComparison[j]);
+                    console.log(mutantsArray[i]);
+                    console.log(forComparison[j]);
+                    console.log(compareResult);
 
                     //Check if line is found
                     if (compareResult!=-1){
